@@ -1,0 +1,13 @@
+{
+  "name": "claude-session-cleaner",
+  "description": "Claude Code plugin: /sessions to filter and delete sessions",
+  "owner": {
+    "name": "r0charm"
+  },
+  "plugins": [
+    {
+      "name": "session-cleaner",
+      "source": "./"
+    }
+  ]
+}

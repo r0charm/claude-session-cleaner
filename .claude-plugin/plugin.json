@@ -1,0 +1,11 @@
+{
+  "name": "session-cleaner",
+  "version": "0.9.0",
+  "description": "/sessions: filter and delete Claude Code sessions",
+  "author": {
+    "name": "r0charm"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/r0charm/claude-session-cleaner",
+  "repository": "https://github.com/r0charm/claude-session-cleaner"
+}
