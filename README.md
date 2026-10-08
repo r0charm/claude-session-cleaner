@@ -25,8 +25,6 @@ To open it straight from a terminal:
 claude /sessions
 ```
 
-or, with `alias sessions='claude /sessions'` in your shell profile, just `sessions`.
-
 ## What it runs and sends
 
 It sends nothing: no network calls. It works only inside your Claude Code configuration directory (`$CLAUDE_CONFIG_DIR`, else `~/.claude`), and runs these programs directly, never through a shell:
