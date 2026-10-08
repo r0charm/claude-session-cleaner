@@ -27,29 +27,17 @@ claude /sessions
 
 or, with `alias sessions='claude /sessions'` in your shell profile, just `sessions`.
 
-## What it reads, runs and sends
+## What it runs and sends
 
-It sends nothing anywhere: no network calls, and none of the programs below reach the network. Everything stays inside your Claude Code configuration directory (`$CLAUDE_CONFIG_DIR`, else `~/.claude`).
+It sends nothing: no network calls. It works only inside your Claude Code configuration directory (`$CLAUDE_CONFIG_DIR`, else `~/.claude`), and runs these programs directly, never through a shell:
 
-Reads, with Claude Code's file calls:
+| Program | Why |
+|---|---|
+| `grep` | read a session's title without loading the whole transcript |
+| `ps` | hide sessions that are still running |
+| `rm -rf --` | the delete, after you confirm: the session's transcript and its leftover folders, only paths named by the session id |
 
-- `projects/`: the session transcripts, their names, sizes and dates
-- `sessions/*.json`: which sessions are running, so they are hidden
-- `settings.json` (global and the folder's `.claude/`): `cleanupPeriodDays`
-- the per-session folders listed below, to size them before a delete
-
-Runs these programs, each by name with its own arguments, never through a shell:
-
-- `grep -E -m 16 -e '"type": ?"user"' -- <transcript>` and `grep -E -e '"type": ?"(custom-title|summary|last-prompt)"' -- <transcript>`: read a session's title without loading the whole transcript
-- `ps -o pid= -p <pids>`: check which recorded Claude Code processes are still alive, so a running session is never offered for deletion
-- `du -sk -- <paths>`: size what a delete would free, shown in the confirm line
-- `rm -rf -- <paths>`: the delete, only after you confirm it. The paths are the session's transcript `projects/<folder>/<id>.jsonl` and, where present, `projects/<folder>/<id>/`, `session-env/<id>`, `file-history/<id>`, `tasks/<id>`, `debug/<id>.txt` and `todos/<id>-*.json`. Every path contains the session's id.
-
-Hooks:
-
-- `session.start`: registers the `/sessions` command
-- `command.run` (only `/sessions`): opens the picker
-- `ui.focus`, `ui.close`, `ui.render` (only the picker's own pane): track the selected row, turn `esc` during a confirm into a cancel, and draw the picker
+Hooks: `session.start` registers `/sessions`, `command.run` opens the picker on `/sessions` only, and `ui.focus`, `ui.close`, `ui.render` act on the picker's own pane only.
 
 ## Install
 

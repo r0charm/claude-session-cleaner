@@ -1,6 +1,6 @@
 {
   "name": "session-cleaner",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "/sessions: filter and delete Claude Code sessions",
   "author": {
     "name": "r0charm"

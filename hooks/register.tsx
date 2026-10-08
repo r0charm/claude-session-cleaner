@@ -23,9 +23,7 @@ import {
   aliveArgv,
   deleteArgv,
   lastTitleLines,
-  sizesArgv,
   splitPids,
-  splitSizes,
   titleLinesArgv,
   userLinesArgv,
 } from './programs'
@@ -97,17 +95,24 @@ async function sessionLeftovers($: EngineInterface, root: string, s: Session): P
   return leftovers(root, s, todos)
 }
 
-async function isPresent($: EngineInterface, path: string): Promise<boolean> {
+async function treeSize($: EngineInterface, path: string): Promise<number> {
+  const sizes = await Promise.all(
+    (await listDir($, path)).map(e => (e.kind === 'dir' ? treeSize($, `${path}/${e.name}`) : e.size)),
+  )
+  return sizes.reduce((sum, n) => sum + n, 0)
+}
+
+async function sizeOf($: EngineInterface, path: string): Promise<number | undefined> {
   const stat = await $.fs.stat(path).catch(() => undefined)
-  return stat !== undefined && (stat.kind !== 'dir' || (await listDir($, path)).length > 0)
+  if (stat?.kind !== 'dir') return stat?.size
+  return (await listDir($, path)).length > 0 ? treeSize($, path) : undefined
 }
 
 async function measure($: EngineInterface, root: string, s: Session) {
-  const all = await sessionLeftovers($, root, s)
-  const present = (await Promise.all(all.map(async l => ((await isPresent($, l.path)) ? [l] : [])))).flat()
-  if (present.length === 0) return []
-  const sizes = splitSizes(await output($, sizesArgv(present.map(l => l.path))))
-  return present.map(l => ({ kind: l.kind, bytes: sizes.get(l.path) ?? 0 }))
+  const sized = await Promise.all(
+    (await sessionLeftovers($, root, s)).map(async l => ({ kind: l.kind, bytes: await sizeOf($, l.path) })),
+  )
+  return sized.flatMap(({ kind, bytes }) => (bytes === undefined ? [] : [{ kind, bytes }]))
 }
 
 async function deleteSession($: EngineInterface, root: string, s: Session): Promise<string> {
