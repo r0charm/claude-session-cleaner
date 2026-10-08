@@ -24,7 +24,8 @@ export function splitRead(stdout: string): Map<string, TranscriptLines> {
   return out
 }
 
-export const SIZE_SCRIPT = 'for p in "$@"; do [ -e "$p" ] && printf "%s\\t%s\\n" "$(du -sk "$p" | cut -f1)" "$p"; done; true'
+export const SIZE_SCRIPT =
+  'for p in "$@"; do [ -e "$p" ] || continue; [ -d "$p" ] && [ -z "$(ls -A "$p")" ] && continue; printf "%s\\t%s\\n" "$(du -sk "$p" | cut -f1)" "$p"; done; true'
 
 export function splitSizes(stdout: string): Map<string, number> {
   const out = new Map<string, number>()

@@ -4,36 +4,9 @@
 
 A Claude Code plugin that adds `/sessions`: a picker to filter and delete your sessions.
 
-```
-1. Browse
-┌──────────────────────────────────────────────────────────────────────┐
-│ Sessions (Current Folder)                    ● Current Folder | ○ All│
-│ ↑↓ move · enter or d delete · shift+tab scope · esc close            │
-│ > : filter                                                           │
-│   add pagination to the orders API                           412K 2h │
-│ ▶ fix flaky login test                                        88K 3d │
-│   refactor auth middleware                                     1M 2w │
-│ Claude Code deletes sessions older than 30 days (cleanupPeriodDays) [3]│
-└──────────────────────────────────────────────────────────────────────┘
-                │ d or enter
-                ▼
-2. Confirm
-┌──────────────────────────────────────────────────────────────────────┐
-│ Delete "fix flaky login test"? transcript + 2 more                   │
-│   (file-history, todos) · enter confirm · esc cancel                 │
-│ ...                                                                  │
-└──────────────────────────────────────────────────────────────────────┘
-        │ enter                                   │ esc
-        ▼                                         ▼
-3. Deleted                                    back to 1, same row
-┌──────────────────────────────────────────────────────────────────────┐
-│ deleted: fix flaky login test · 2M freed                             │
-│ > : filter                                                           │
-│   add pagination to the orders API                           412K 2h │
-│ ▶ refactor auth middleware                                     1M 2w │
-│ Claude Code deletes sessions older than 30 days (cleanupPeriodDays) [2]│
-└──────────────────────────────────────────────────────────────────────┘
-```
+![The sessions picker](docs/sessions.png)
+
+![Confirming a delete](docs/confirm.png)
 
 ## Keys
 
