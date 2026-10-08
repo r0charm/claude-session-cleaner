@@ -1,4 +1,4 @@
-# claude-session-cleaner
+# session-cleaner
 
 [![checks](https://github.com/r0charm/claude-session-cleaner/actions/workflows/checks.yml/badge.svg)](https://github.com/r0charm/claude-session-cleaner/actions/workflows/checks.yml)
 
