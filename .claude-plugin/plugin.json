@@ -3,7 +3,7 @@
   "version": "1.0.2",
   "description": "/sessions: filter and delete Claude Code sessions",
   "author": {
-    "name": "r0charm"
+    "name": "Ricardo Rocha"
   },
   "license": "MIT",
   "homepage": "https://github.com/r0charm/claude-session-cleaner",
