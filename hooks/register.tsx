@@ -18,7 +18,17 @@ import {
 } from './picker'
 import { leftovers, parseTranscript, sessionId, type Leftover, type Session } from './sessions'
 import { retentionDays } from './settings'
-import { ALIVE_SCRIPT, READ_BATCH, READ_SCRIPT, SIZE_SCRIPT, splitRead, splitSizes } from './shell'
+import {
+  READ_BATCH,
+  aliveArgv,
+  deleteArgv,
+  lastTitleLines,
+  sizesArgv,
+  splitPids,
+  splitSizes,
+  titleLinesArgv,
+  userLinesArgv,
+} from './programs'
 
 const PANE = 'session-cleaner'
 
@@ -37,8 +47,8 @@ async function listDir($: EngineInterface, path: string) {
   return $.fs.list(path).catch(() => [])
 }
 
-async function sh($: EngineInterface, script: string, args: readonly string[]): Promise<string> {
-  return (await $.process.run(['sh', '-c', script, 'sh', ...args])).stdout
+async function output($: EngineInterface, argv: readonly string[]): Promise<string> {
+  return (await $.process.run(argv)).stdout
 }
 
 async function loadSessions($: EngineInterface, root: string): Promise<Session[]> {
@@ -55,17 +65,14 @@ async function loadSessions($: EngineInterface, root: string): Promise<Session[]
     ),
   )
   const found = perDir.flat()
-  const batches: Session[][] = []
-  for (let i = 0; i < found.length; i += READ_BATCH) batches.push(found.slice(i, i + READ_BATCH))
-  await Promise.all(
-    batches.map(async batch => {
-      const read = splitRead(await sh($, READ_SCRIPT, batch.map(s => s.path)))
-      for (const s of batch) {
-        const lines = read.get(s.path)
-        Object.assign(s, parseTranscript(lines?.userLines ?? '', lines?.titleLines ?? ''))
-      }
-    }),
-  )
+  for (let i = 0; i < found.length; i += READ_BATCH) {
+    await Promise.all(
+      found.slice(i, i + READ_BATCH).map(async s => {
+        const [userLines, titleLines] = await Promise.all([output($, userLinesArgv(s.path)), output($, titleLinesArgv(s.path))])
+        Object.assign(s, parseTranscript(userLines, lastTitleLines(titleLines)))
+      }),
+    )
+  }
   return found.sort((a, b) => b.mtimeMs - a.mtimeMs)
 }
 
@@ -81,8 +88,8 @@ async function runningIds($: EngineInterface, root: string): Promise<Set<string>
     }),
   )
   if (byPid.size === 0) return new Set()
-  const alive = await sh($, ALIVE_SCRIPT, [...byPid.keys()])
-  return new Set(alive.split('\n').flatMap(pid => byPid.get(pid) ?? []))
+  const alive = splitPids(await output($, aliveArgv([...byPid.keys()])))
+  return new Set(alive.flatMap(pid => byPid.get(pid) ?? []))
 }
 
 async function sessionLeftovers($: EngineInterface, root: string, s: Session): Promise<Leftover[]> {
@@ -90,15 +97,22 @@ async function sessionLeftovers($: EngineInterface, root: string, s: Session): P
   return leftovers(root, s, todos)
 }
 
+async function isPresent($: EngineInterface, path: string): Promise<boolean> {
+  const stat = await $.fs.stat(path).catch(() => undefined)
+  return stat !== undefined && (stat.kind !== 'dir' || (await listDir($, path)).length > 0)
+}
+
 async function measure($: EngineInterface, root: string, s: Session) {
   const all = await sessionLeftovers($, root, s)
-  const sizes = splitSizes(await sh($, SIZE_SCRIPT, all.map(l => l.path)))
-  return all.filter(l => sizes.has(l.path)).map(l => ({ kind: l.kind, bytes: sizes.get(l.path) ?? 0 }))
+  const present = (await Promise.all(all.map(async l => ((await isPresent($, l.path)) ? [l] : [])))).flat()
+  if (present.length === 0) return []
+  const sizes = splitSizes(await output($, sizesArgv(present.map(l => l.path))))
+  return present.map(l => ({ kind: l.kind, bytes: sizes.get(l.path) ?? 0 }))
 }
 
 async function deleteSession($: EngineInterface, root: string, s: Session): Promise<string> {
   const paths = (await sessionLeftovers($, root, s)).map(l => l.path)
-  const { exitCode, stderr } = await $.process.run(['rm', '-rf', '--', ...paths])
+  const { exitCode, stderr } = await $.process.run(deleteArgv(paths))
   return exitCode === 0 ? '' : stderr.trim() || `rm exited ${exitCode}`
 }
 
