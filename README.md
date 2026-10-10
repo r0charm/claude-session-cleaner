@@ -1,6 +1,6 @@
 # session-cleaner
 
-[![checks](https://github.com/r0charm/claude-session-cleaner/actions/workflows/checks.yml/badge.svg)](https://github.com/r0charm/claude-session-cleaner/actions/workflows/checks.yml)
+[![checks](https://github.com/r0charm/claude-session-cleaner/actions/workflows/checks.yml/badge.svg)](https://github.com/r0charm/claude-session-cleaner/actions/workflows/checks.yml) [![version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fr0charm%2Fclaude-session-cleaner%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=version)](https://github.com/r0charm/claude-session-cleaner/blob/main/.claude-plugin/plugin.json) [![license](https://img.shields.io/github/license/r0charm/claude-session-cleaner)](https://github.com/r0charm/claude-session-cleaner/blob/main/LICENSE)
 
 A Claude Code plugin that adds `/sessions`: a picker to filter and delete your sessions.
 
